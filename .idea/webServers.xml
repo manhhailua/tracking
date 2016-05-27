@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="e1281f97-fa25-4e1f-aa9a-50e1c1f36d06" name="Tracking" url="http://123.31.11.15:3010">
+        <fileTransfer host="123.31.11.15" port="21" rootFolder="/tracking" password="dfe7dfc5dfc5dfc4dfc3dfcfdf98df9ddf9bdf98df98df9adf9bdf9f" username="manhpt">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+      <webServer id="b0b9fd3f-a24a-4ae2-8fa5-9a8a35e6da9e" name="First-Party" url="http://123.31.11.15:3020">
+        <fileTransfer host="123.31.11.15" port="21" rootFolder="/first-party" password="dfe7dfc5dfc5dfc4dfc3dfcfdf98df9ddf9bdf98df98df9adf9bdf9f" username="manhpt">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
