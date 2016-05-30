@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var faker = require('faker');
 var fs = require('fs');
-var evercookie = require('evercookie');
 
 var User = require('../models/User');
 
@@ -57,7 +56,7 @@ router.get('/tracking.js', function (req, res, next) {
   try {
     var script = fs.readFileSync('./public/bower_components/fingerprintjs2/fingerprint2.js', 'utf8');
     script += fs.readFileSync('./public/bower_components/evercookie/js/swfobject-2.2.min.js', 'utf8');
-    script += fs.readFileSync('./public/bower_components/evercookie/js/evercookie.js', 'utf8');
+    script += fs.readFileSync('./public/bower_components/evercookie/js/_evercookie.js', 'utf8');
     res.send(script);
   } catch (error) {
     throw error;

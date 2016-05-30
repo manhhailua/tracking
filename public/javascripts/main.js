@@ -29,14 +29,21 @@
   loadScript(libUrl, function () {
     // Fingerprint
     var ec = new evercookie({
-      baseurl: '/bower_components/evercookie',
+      baseurl: 'http://codek.org',
       asseturi: '/assets',
       phpuri: '/php'
     });
     new Fingerprint2().get(function (result, components) {
-      (new Image()).src = '//123.31.11.15:3010/users?fp=' + result;
+      (new Image()).src = '//manhhailua.com:3010/users?fp=' + result;
       console.log('fp: ', result);
-      ec.set('fp', result);
+
+      // Set cookie
+      // ec.set('fp', result);
+
+      // Get cookie
+      ec.get('fp', function (fp) {
+        console.log('from evercookie: ', fp);
+      })
     });
   });
-})('//123.31.11.15:3010/tracking.js');
+})('//manhhailua.com:3010/tracking.js');

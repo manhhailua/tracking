@@ -28,6 +28,7 @@
 
 ## File-based project format:
 *.iws
+.DS_Store
 
 ## Plugin-specific files:
 

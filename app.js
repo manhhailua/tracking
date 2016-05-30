@@ -27,12 +27,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(evercookie.backend());
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(session({
   // store: new RedisStore({
   //   client: client,
   //   db: 15
-  // }),∂
+  // }),
   secret: 'tracking-test',
   resave: true,
   saveUninitialized: true,
