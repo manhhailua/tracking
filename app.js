@@ -9,7 +9,7 @@ var bodyParser = require('body-parser');
 // var client = redis.createClient(6379, '127.0.0.1');
 var session = require('express-session');
 // var RedisStore = require('connect-redis')(session);
-var mongoose = require('mongoose').connect('mongodb://localhost/tracking-test');
+var mongoose = require('mongoose').connect('mongodb://123.31.11.15/tracking-test');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
