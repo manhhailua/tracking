@@ -7,13 +7,7 @@ var User = require('../models/User');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  if (!req.session.test) {
-    console.log('Chưa có test!');
-    console.log(req.session);
-    req.session.test = 'manhhailua';
-    req.session.cookie.expires = Date.now() + 1000 * 10;
-    req.session.cookie.maxAge = 1000 * 10;
-  }
+  console.log(req.cookies);
 
   res.render('index', {title: 'Tracking Client Testing Site'});
 });
@@ -52,6 +46,7 @@ router.get('/fake', function (req, res, next) {
   res.render('index', {title: 'Tracking Test - Faked data has been created!'})
 });
 
+// Dynamic tracking.js
 router.get('/tracking.js', function (req, res, next) {
   try {
     var script = fs.readFileSync('./public/bower_components/fingerprintjs2/fingerprint2.js', 'utf8');
@@ -66,16 +61,6 @@ router.get('/tracking.js', function (req, res, next) {
 // Test jsonp callback
 router.get('/jsonp', function (req, res, next) {
   res.jsonp({a: 'b', c: 'd'});
-});
-
-// Test ajax request
-router.get('/ajax', function (req, res, next) {
-  res.send({name: 'ajax request response'});
-});
-
-// Iframe
-router.get('/iframe', function (req, res, next) {
-  res.render('iframe', {title: 'Iframe Page'});
 });
 
 module.exports = router;
