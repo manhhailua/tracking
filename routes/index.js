@@ -7,9 +7,10 @@ var User = require('../models/User');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  console.log(req.cookies);
-
-  res.render('index', {title: 'Tracking Client Testing Site'});
+  res.render('index', {
+    title: 'Tracking Client Testing Site',
+    fingerprint: req.cookies.fp || 'Not yet set!'
+  });
 });
 
 // Data fictions
@@ -52,6 +53,8 @@ router.get('/tracking.js', function (req, res, next) {
     var script = fs.readFileSync('./public/bower_components/fingerprintjs2/fingerprint2.js', 'utf8');
     script += fs.readFileSync('./public/bower_components/evercookie/js/swfobject-2.2.min.js', 'utf8');
     script += fs.readFileSync('./public/bower_components/evercookie/js/_evercookie.js', 'utf8');
+
+    res.set('Content-Type', 'application/javascript');
     res.send(script);
   } catch (error) {
     throw error;

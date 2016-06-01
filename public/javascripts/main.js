@@ -1,9 +1,5 @@
 (function (libUrl) {
-  /**
-   * Load script from url
-   * @param url
-   * @param callback
-   */
+  // Load script from url
   function loadScript(url, callback) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
@@ -34,19 +30,25 @@
       phpuri: '/php'
     });
     new Fingerprint2().get(function (result, components) {
-      (new Image()).src = '//manhhailua.com:3010/users?fp=' + result;
       // Current fingerprint
       console.log('fp: ', result);
+
+      var url = '//manhhailua.com:3010/users?fp=' + result;
 
       // Evercookie checking
       ec.get('fp', function (fp) {
         console.log('from evercookie: ', fp);
         if (result !== fp) { // Detect change of fingerprint
+          // Save new fingerprint
           console.log('Your fingerprint has changed!');
           ec.set('fp', result); // Save fingerprint
           console.log('Your new fingerprint has been saved!');
+
+          // Add old fingerprint to url
+          url += '&ofp=' + fp;
         }
+        (new Image()).src = url; // Make request
       })
     });
   });
-})('//manhhailua.com:3010/tracking.js');
+})('http://manhhailua.com:3010/tracking.js');
