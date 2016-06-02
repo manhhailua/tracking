@@ -26,7 +26,7 @@ router.get('/', function (req, res, next) {
 
   console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
   // Evercookie logging
-  console.log('guid: ', req.cookies.guid);
+  console.log('guid: ', req.cookies);
   // Finger print logging
   console.log(req.query);
   console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
