@@ -1,0 +1,21 @@
+{
+  "name": "tracking",
+  "description": "",
+  "main": "./bin/www",
+  "authors": [
+    "manhhailua"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fingerprintjs2": "^1.2.0"
+  }
+}
