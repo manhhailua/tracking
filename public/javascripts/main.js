@@ -25,7 +25,7 @@
   loadScript(libUrl, function () {
     // Fingerprint
     var ec = new evercookie({
-      baseurl: 'http://codek.org',
+      baseurl: '//codek.org',
       asseturi: '/assets',
       phpuri: '/php'
     });
