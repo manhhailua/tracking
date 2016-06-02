@@ -45,6 +45,9 @@
 
     new Fingerprint2().get(function (result, components) {
       console.log('fp: ', result); // Current fingerprint
+      if (document.getElementsByName('fingerPrint')[0]) {
+        document.getElementsByName('fingerPrint')[0].value = result;
+      }
       TRequest.imgGet('//manhhailua.herokuapp.com/users?fp=' + result, function () {
         console.log('Tracking request has sent with fingerprint: ', result);
       });
