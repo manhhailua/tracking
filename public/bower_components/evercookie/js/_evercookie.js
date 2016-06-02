@@ -798,9 +798,9 @@ try {
       this.evercookie_indexdb_storage = function (name, value) {
         try {
           if (!('indexedDB' in window)) {
-            indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-            IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
-            IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+            var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+            var IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+            var IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
           }
 
           if (indexedDB) {
@@ -810,7 +810,6 @@ try {
 
 
             request.onerror = function (e) {
-
             };
 
             request.onupgradeneeded = function (event) {
@@ -819,13 +818,10 @@ try {
               var store = db.createObjectStore("evercookie", {
                 keyPath: "name",
                 unique: false
-              })
-
-            }
+              });
+            };
 
             if (value !== undefined) {
-
-
               request.onsuccess = function (event) {
                 var idb = event.target.result;
                 if (idb.objectStoreNames.contains("evercookie")) {
@@ -838,9 +834,7 @@ try {
                 }
                 idb.close();
               }
-
             } else {
-
               request.onsuccess = function (event) {
 
                 var idb = event.target.result;
