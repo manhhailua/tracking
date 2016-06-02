@@ -25,6 +25,9 @@ router.get('/', function (req, res, next) {
   );
 
   console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+  // Evercookie logging
+  console.log('guid: ', req.cookies.guid);
+  // Finger print logging
   console.log(req.query);
   console.log('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
   console.log('IP Address:', req.ip);

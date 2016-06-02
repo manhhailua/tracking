@@ -29,26 +29,26 @@
       asseturi: '/assets',
       phpuri: '/php'
     });
+
+    // Evercookie checking
+    ec.get('guid', function (guid) {
+      if (!guid) {
+        console.log('No GUID found in evercookie! We now create one for you!');
+        var uuid = TRequest.guid();
+        console.log('Your GUID: ', uuid);
+        ec.set('guid', uuid);
+        console.log('Your GUID has been successfully stored in evercookie!');
+      } else {
+        console.log('GUID from evercookie: ', guid);
+      }
+    });
+
     new Fingerprint2().get(function (result, components) {
-      // Current fingerprint
-      console.log('fp: ', result);
-
-      var url = '//manhhailua.com:3010/users?fp=' + result;
-
-      // Evercookie checking
-      ec.get('fp', function (fp) {
-        console.log('from evercookie: ', fp);
-        if (result !== fp) { // Detect change of fingerprint
-          // Save new fingerprint
-          console.log('Your fingerprint has changed!');
-          ec.set('fp', result); // Save fingerprint
-          console.log('Your new fingerprint has been saved!');
-
-          // Add old fingerprint to url
-          url += '&ofp=' + fp;
-        }
-        (new Image()).src = url; // Make request
-      })
+      console.log('fp: ', result); // Current fingerprint
+      document.getElementsByName('fingerPrint')[0].value = result;
+      TRequest.imgGet('//manhhailua.herokuapp.com/users?fp=' + result, function () {
+        console.log('Tracking request has sent with fingerprint: ', result);
+      });
     });
   });
-})('http://manhhailua.com:3010/tracking.js');
+})('//manhhailua.herokuapp.com/tracking.js');

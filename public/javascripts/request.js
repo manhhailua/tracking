@@ -1,5 +1,28 @@
-// Async HTTP GET AJAX request
-function httpGetAsync(url, callback) {
+/**
+ * TRequest prototype
+ * @type {{}}
+ */
+function TRequestModel() {
+}
+
+/**
+ * Generate guid/uuid with least duplicate ratio
+ * @returns {string} 24 bit length
+ */
+TRequestModel.prototype.guid = function () {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  }
+
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+};
+
+/**
+ * Async HTTP GET AJAX request
+ * @param url
+ * @param callback
+ */
+TRequestModel.prototype.httpGetAsync = function (url, callback) {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
@@ -8,17 +31,26 @@ function httpGetAsync(url, callback) {
   };
   xmlHttp.open("GET", url, true);
   xmlHttp.send(null);
-}
+};
 
-// Send HTTP GET request by creating an image
-function imgGet(url, callback) {
+/**
+ * Send HTTP GET request by creating an image
+ * @param url
+ * @param callback
+ */
+TRequestModel.prototype.imgGet = function (url, callback) {
   var i = document.createElement('img');
   i.src = url;
   callback();
-}
+};
 
-// CORS request
-function makeCORSRequest(url, method) {
+/**
+ * CORS request
+ * @param url
+ * @param method
+ * @returns {*}
+ */
+TRequestModel.prototype.makeCORSRequest = function (url, method) {
   if (typeof XMLHttpRequest === "undefined") {
     return null;
   }
@@ -34,4 +66,7 @@ function makeCORSRequest(url, method) {
   }
 
   return xhr;
-}
+};
+
+// Init new model
+var TRequest = new TRequestModel();
