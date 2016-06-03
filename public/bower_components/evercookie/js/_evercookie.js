@@ -515,8 +515,8 @@ try {
         var headers, name, transports, transport, i, length;
 
         headers = {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Access-Control-Allow-Origin': '*',
+          // 'X-Requested-With': 'XMLHttpRequest',
+          // 'Access-Control-Allow-Origin': '*',
           'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
         };
 
