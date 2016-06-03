@@ -68,16 +68,27 @@
 try {
   (function (window) {
     'use strict';
+
+    /**
+     * Global variables
+     * @type {HTMLDocument}
+     */
     var document = window.document,
       Image = window.Image,
       globalStorage = window.globalStorage,
       swfobject = window.swfobject;
 
+    /**
+     * Init localStorage variable
+     */
     try {
       var localStore = window.localStorage
     } catch (ex) {
     }
 
+    /**
+     * Init sessionStorage variable
+     */
     try {
       var sessionStorage = window.sessionStorage;
     } catch (e) {
@@ -164,7 +175,6 @@ try {
     function onSilverlightError(sender, args) {
       _global_isolated = "";
     }
-
 
     // hsts-cookie "lib"
     function HSTS_Cookie(domains) {
@@ -1046,7 +1056,7 @@ try {
         // - is special
         var baseElems = (_baseKeyStr + "-").split(""),
         // sorry google.
-          url = "http://www.google.com/evercookie/cache/" + this.getHost() + "/" + name,
+          url = "https://codek.org/cache/" + this.getHost() + "/" + name,
           i, base,
           letter = "",
           val = "",
