@@ -516,6 +516,7 @@ try {
 
         headers = {
           'X-Requested-With': 'XMLHttpRequest',
+          'Access-Control-Allow-Origin': '*',
           'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
         };
 
