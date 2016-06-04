@@ -48,9 +48,9 @@
       if (document.getElementsByName('fingerPrint')[0]) {
         document.getElementsByName('fingerPrint')[0].value = result;
       }
-      TRequest.imgGet('//manhhailua.com/users?fp=' + result, function () {
+      TRequest.imgGet('//manhhailua.xyz/users?fp=' + result, function () {
         console.log('Tracking request has sent with fingerprint: ', result);
       });
     });
   });
-})('//manhhailua.com/tracking.js');
+})('//manhhailua.xyz/tracking.js');
