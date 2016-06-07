@@ -176,7 +176,12 @@ try {
       _global_isolated = "";
     }
 
-    // hsts-cookie "lib"
+    /**
+     * HSTS-cookie "lib"
+     * @param domains
+     * @returns {{bools_to_int: bools_to_int, is_working: 'is_working', get_hsts_value: 'get_hsts_value', set_hsts_value: 'set_hsts_value', set_hsts_as_int: 'set_hsts_as_int', get_hsts_as_int: 'get_hsts_as_int'}}
+     * @constructor
+     */
     function HSTS_Cookie(domains) {
       var fields = [];
       var remaining = 0;
@@ -268,7 +273,10 @@ try {
       };
     }
 
-
+    /**
+     * Default options
+     * @type {{history: boolean, java: boolean, tests: number, silverlight: boolean, domain: string, baseurl: string, asseturi: string, phpuri: string, authPath: boolean, pngCookieName: string, pngPath: string, etagCookieName: string, etagPath: string, cacheCookieName: string, cachePath: string, hsts: boolean, hsts_domains: Array}}
+     */
     var defaultOptionMap = {
       history: true, // CSS history knocking or not .. can be network intensive
       java: true, // Java applet on/off... may prompt users for permission to run.
@@ -314,7 +322,9 @@ try {
      */
     function Evercookie(options) {
       options = options || {};
+
       var opts = {};
+
       for (var key in defaultOptionMap) {
         var optValue = options[key];
         if (typeof optValue !== 'undefined') {
@@ -323,9 +333,11 @@ try {
           opts[key] = defaultOptionMap[key];
         }
       }
+
       if (typeof opts.domain === 'function') {
         opts.domain = opts.domain(window);
       }
+
       var _ec_history = opts.history,
         _ec_java = opts.java,
         _ec_tests = opts.tests,
@@ -337,10 +349,12 @@ try {
 
       // private property
       var self = this;
+
       this._ec = {};
+
       if (_ec_hsts) {
         if (opts.hsts_domains.length <= 8) {
-          // TODO: warn on some more prominent place ?
+          // TODO: warn on some more prominent place?
           console.log('HSTS cookie with ' + opts.hsts_domains.length + ' can only save values up to ' + Math.pow(2, opts.hsts_domains.length) - 1);
         }
         this.hsts_cookie = HSTS_Cookie(opts.hsts_domains);
@@ -355,13 +369,16 @@ try {
         }, value);
       };
 
+      // main function of getting/setting evercookie
       this._evercookie = function (name, cb, value, i, dont_reset) {
         if (self._evercookie === undefined) {
           self = this;
         }
+
         if (i === undefined) {
           i = 0;
         }
+
         // first run
         if (i === 0) {
           self.evercookie_database_storage(name, value);
@@ -370,26 +387,16 @@ try {
           self.evercookie_etag(name, value);
           self.evercookie_cache(name, value);
           self.evercookie_lso(name, value);
-          if (opts.silverlight) {
-            self.evercookie_silverlight(name, value);
-          }
-          if (opts.authPath) {
-            self.evercookie_auth(name, value);
-          }
-          if (_ec_java) {
-            self.evercookie_java(name, value);
-          }
-
+          if (opts.silverlight) self.evercookie_silverlight(name, value);
+          if (opts.authPath) self.evercookie_auth(name, value);
+          if (_ec_java) self.evercookie_java(name, value);
           self._ec.userData = self.evercookie_userdata(name, value);
           self._ec.cookieData = self.evercookie_cookie(name, value);
           self._ec.localData = self.evercookie_local_storage(name, value);
           self._ec.globalData = self.evercookie_global_storage(name, value);
           self._ec.sessionData = self.evercookie_session_storage(name, value);
           self._ec.windowData = self.evercookie_window(name, value);
-
-          if (_ec_history) {
-            self._ec.historyData = self.evercookie_history(name, value);
-          }
+          if (_ec_history) self._ec.historyData = self.evercookie_history(name, value);
           if (_ec_hsts) {
             self._ec.hstsData = undefined;
             if (value === undefined) {
@@ -449,68 +456,46 @@ try {
             self._ec.slData = self.getFromStr(name, _global_isolated);
             _global_isolated = undefined;
 
-            var tmpec = self._ec,
+            var tmpEc = self._ec,
               candidates = [],
-              bestnum = 0,
+              bestNumber = 0,
               candidate,
               item;
             self._ec = {};
 
             // figure out which is the best candidate
-            for (item in tmpec) {
-              if (tmpec[item] && tmpec[item] !== "null" && tmpec[item] !== "undefined") {
-                candidates[tmpec[item]] = candidates[tmpec[item]] === undefined ? 1 : candidates[tmpec[item]] + 1;
+            // cookie stored in each storage maybe different from the others,
+            // this step is to make the best candidate stand out
+            for (item in tmpEc) {
+              console.log(tmpEc[item]);
+              if (tmpEc[item] && tmpEc[item] !== "null" && tmpEc[item] !== "undefined") {
+                candidates[tmpEc[item]] = candidates[tmpEc[item]] === undefined ? 1 : candidates[tmpEc[item]] + 1;
               }
             }
 
+            // now find the best candidate
             for (item in candidates) {
-              if (candidates[item] > bestnum) {
-                bestnum = candidates[item];
+              if (candidates[item] > bestNumber) {
+                bestNumber = candidates[item];
                 candidate = item;
               }
             }
 
             this.working = false;
+
             // reset cookie everywhere
             if (candidate !== undefined && (dont_reset === undefined || dont_reset !== 1)) {
               self.set(name, candidate);
             }
+
             if (typeof cb === "function") {
-              cb(candidate, tmpec);
+              cb(candidate, tmpEc);
             }
           }
         }
       };
 
-      this.evercookie_window = function (name, value) {
-        try {
-          if (value !== undefined) {
-            window.name = _ec_replace(window.name, name, value);
-          } else {
-            return this.getFromStr(name, window.name);
-          }
-        } catch (e) {
-        }
-      };
-
-      this.evercookie_userdata = function (name, value) {
-        try {
-          var elm = this.createElem("div", "userdata_el", 1);
-          if (elm.addBehavior) {
-            elm.style.behavior = "url(#default#userData)";
-
-            if (value !== undefined) {
-              elm.setAttribute(name, value);
-              elm.save(name);
-            } else {
-              elm.load(name);
-              return elm.getAttribute(name);
-            }
-          }
-        } catch (e) {
-        }
-      };
-
+      // make an AJAX request
       this.ajax = function (settings) {
         var headers, name, transports, transport, i, length;
 
@@ -553,6 +538,38 @@ try {
         transport.send();
       };
 
+      // TODO: store value to "window.name"
+      this.evercookie_window = function (name, value) {
+        try {
+          if (value !== undefined) {
+            window.name = _ec_replace(window.name, name, value);
+          } else {
+            return this.getFromStr(name, window.name);
+          }
+        } catch (e) {
+        }
+      };
+
+      // TODO: store value to element behavior
+      this.evercookie_userdata = function (name, value) {
+        try {
+          var elm = this.createElem("div", "userdata_el", 1);
+          if (elm.addBehavior) {
+            elm.style.behavior = "url(#default#userData)";
+
+            if (value !== undefined) {
+              elm.setAttribute(name, value);
+              elm.save(name);
+            } else {
+              elm.load(name);
+              return elm.getAttribute(name);
+            }
+          }
+        } catch (e) {
+        }
+      };
+
+      // TODO: store value to "document.cookie"
       this.evercookie_cache = function (name, value) {
         if (value !== undefined) {
           // make sure we have evercookie session defined first
@@ -566,7 +583,7 @@ try {
         } else {
           // interestingly enough, we want to erase our evercookie
           // http cookie so the php will force a cached response
-          var origvalue = this.getFromStr(opts.cacheCookieName, document.cookie);
+          var originValue = this.getFromStr(opts.cacheCookieName, document.cookie);
           self._ec.cacheData = undefined;
           document.cookie = opts.cacheCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
@@ -574,7 +591,7 @@ try {
             url: _ec_baseurl + _ec_phpuri + opts.cachePath + "?name=" + name + "&cookie=" + opts.cacheCookieName,
             success: function (data) {
               // put our cookie back
-              document.cookie = opts.cacheCookieName + "=" + origvalue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
+              document.cookie = opts.cacheCookieName + "=" + originValue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
               self._ec.cacheData = data;
             }
@@ -582,12 +599,12 @@ try {
         }
       };
 
+      // TODO: cookie authentication
       this.evercookie_auth = function (name, value) {
         if (value !== undefined) {
           // {{opts.authPath}} handles Basic Access Authentication
           newImage('//' + value + '@' + location.host + _ec_baseurl + _ec_phpuri + opts.authPath + "?name=" + name);
-        }
-        else {
+        } else {
           self.ajax({
             url: _ec_baseurl + _ec_phpuri + opts.authPath + "?name=" + name,
             success: function (data) {
@@ -597,6 +614,7 @@ try {
         }
       };
 
+      // TODO: store value to "ETag"
       this.evercookie_etag = function (name, value) {
         if (value !== undefined) {
           // make sure we have evercookie session defined first
@@ -626,6 +644,7 @@ try {
         }
       };
 
+      // TODO: store value to java applet
       this.evercookie_java = function (name, value) {
         var div = document.getElementById("ecAppletContainer");
 
@@ -675,9 +694,10 @@ try {
         // The result of a get() is now in self._ec._javaData
       };
 
+      // TODO: store value to Flash cache
       this.evercookie_lso = function (name, value) {
         var div = document.getElementById("swfcontainer"),
-          flashvars = {},
+          flashVars = {},
           params = {},
           attributes = {};
         if (div === null || div === undefined || !div.length) {
@@ -687,14 +707,15 @@ try {
         }
 
         if (value !== undefined) {
-          flashvars.everdata = name + "=" + value;
+          flashVars.everdata = name + "=" + value;
         }
         params.swliveconnect = "true";
         attributes.id = "myswf";
         attributes.name = "myswf";
-        swfobject.embedSWF(_ec_baseurl + _ec_asseturi + "/evercookie.swf", "swfcontainer", "1", "1", "9.0.0", false, flashvars, params, attributes);
+        swfobject.embedSWF(_ec_baseurl + _ec_asseturi + "/evercookie.swf", "swfcontainer", "1", "1", "9.0.0", false, flashVars, params, attributes);
       };
 
+      // TODO: store value to image cache
       this.evercookie_png = function (name, value) {
         var canvas = document.createElement("canvas"),
           img, ctx, origvalue;
@@ -753,6 +774,7 @@ try {
         }
       };
 
+      // TODO: store value to Local Storage
       this.evercookie_local_storage = function (name, value) {
         try {
           if (localStore) {
@@ -766,6 +788,7 @@ try {
         }
       };
 
+      // TODO: store value to Database Storage (WEB SQL)
       this.evercookie_database_storage = function (name, value) {
         try {
           if (window.openDatabase) {
@@ -805,6 +828,7 @@ try {
         }
       };
 
+      // TODO: store value to IndexDB Storage
       this.evercookie_indexdb_storage = function (name, value) {
         try {
           if (!('indexedDB' in window)) {
@@ -873,6 +897,7 @@ try {
         }
       };
 
+      // TODO: store value to Session Storage
       this.evercookie_session_storage = function (name, value) {
         try {
           if (sessionStorage) {
@@ -886,6 +911,7 @@ try {
         }
       };
 
+      // TODO: store value to Global Storage
       this.evercookie_global_storage = function (name, value) {
         if (globalStorage) {
           var host = this.getHost();
@@ -900,6 +926,7 @@ try {
         }
       };
 
+      // TODO: store value to Silverlight cache
       this.evercookie_silverlight = function (name, value) {
         /*
          * Create silverlight embed
@@ -908,27 +935,28 @@ try {
          * is the best method I found. Someone really needs to find a less hack-ish way. I hate the look of this shit.
          */
         var source = _ec_baseurl + _ec_asseturi + "/evercookie.xap",
-          minver = "4.0.50401.0",
+          minVersion = "4.0.50401.0",
           initParam = "",
           html;
+
         if (value !== undefined) {
           initParam = '<param name="initParams" value="' + name + '=' + value + '" />';
         }
 
-        html =
-          '<object style="position:absolute;left:-500px;top:-500px" data="data:application/x-silverlight-2," type="application/x-silverlight-2" id="mysilverlight" width="0" height="0">' +
-          initParam +
+        html = '<object style="position:absolute;left:-500px;top:-500px" data="data:application/x-silverlight-2," ' +
+          'type="application/x-silverlight-2" id="mysilverlight" width="0" height="0">' + initParam +
           '<param name="source" value="' + source + '"/>' +
           '<param name="onLoad" value="onSilverlightLoad"/>' +
           '<param name="onError" value="onSilverlightError"/>' +
           '<param name="background" value="Transparent"/>' +
           '<param name="windowless" value="true"/>' +
-          '<param name="minRuntimeVersion" value="' + minver + '"/>' +
+          '<param name="minRuntimeVersion" value="' + minVersion + '"/>' +
           '<param name="autoUpgrade" value="false"/>' +
-          '<a href="http://go.microsoft.com/fwlink/?LinkID=149156&v=' + minver + '" style="display:none">' +
+          '<a href="http://go.microsoft.com/fwlink/?LinkID=149156&v=' + minVersion + '" style="display:none">' +
           'Get Microsoft Silverlight' +
           '</a>' +
           '</object>';
+
         try {
           if (typeof jQuery === 'undefined') {
             document.body.appendChild(html);
@@ -936,11 +964,15 @@ try {
             $('body').append(html);
           }
         } catch (ex) {
-
         }
       };
 
-      // public method for encoding
+      /**
+       * Public method for encoding
+       *
+       * @param input
+       * @returns {string}
+       */
       this.encode = function (input) {
         var output = "",
           chr1, chr2, chr3, enc1, enc2, enc3, enc4,
@@ -949,7 +981,6 @@ try {
         input = this._utf8_encode(input);
 
         while (i < input.length) {
-
           chr1 = input.charCodeAt(i++);
           chr2 = input.charCodeAt(i++);
           chr3 = input.charCodeAt(i++);
@@ -968,13 +999,17 @@ try {
           output = output +
             _baseKeyStr.charAt(enc1) + _baseKeyStr.charAt(enc2) +
             _baseKeyStr.charAt(enc3) + _baseKeyStr.charAt(enc4);
-
         }
 
         return output;
       };
 
-      // public method for decoding
+      /**
+       * Public method for decoding
+       *
+       * @param input
+       * @returns {string}
+       */
       this.decode = function (input) {
         var output = "",
           chr1, chr2, chr3,
@@ -1006,7 +1041,13 @@ try {
         return output;
       };
 
-      // private method for UTF-8 encoding
+      /**
+       * private method for UTF-8 encoding
+       *
+       * @param str
+       * @returns {string}
+       * @private
+       */
       this._utf8_encode = function (str) {
         str = str.replace(/\r\n/g, "\n");
         var utftext = "", i = 0, n = str.length, c;
@@ -1026,7 +1067,13 @@ try {
         return utftext;
       };
 
-      // private method for UTF-8 decoding
+      /**
+       * private method for UTF-8 decoding
+       *
+       * @param utftext
+       * @returns {string}
+       * @private
+       */
       this._utf8_decode = function (utftext) {
         var str = "",
           i = 0, n = utftext.length,
@@ -1050,8 +1097,14 @@ try {
         return str;
       };
 
-      // this is crazy but it's 4am in dublin and i thought this would be hilarious
-      // blame the guinness
+      /**
+       * this is crazy but it's 4am in dublin and i thought this would be hilarious
+       * blame the guinness
+       *
+       * @param name
+       * @param value
+       * @returns {string}
+       */
       this.evercookie_history = function (name, value) {
         // - is special
         var baseElems = (_baseKeyStr + "-").split(""),
@@ -1107,6 +1160,14 @@ try {
         }
       };
 
+      /**
+       * Create a element with name
+       *
+       * @param type Tag name
+       * @param name Name
+       * @param append Where will the element be appended to?
+       * @returns {*}
+       */
       this.createElem = function (type, name, append) {
         var el;
         if (name !== undefined && document.getElementById(name)) {
@@ -1127,13 +1188,23 @@ try {
         return el;
       };
 
+      /**
+       * Create a iframe for third-party cookie embedding
+       * @param url Iframe URL
+       * @param name Iframe name
+       * @returns {*}
+       */
       this.createIframe = function (url, name) {
         var el = this.createElem("iframe", name, true);
         el.setAttribute("src", url);
         return el;
       };
 
-      // wait for our swfobject to appear (swfobject.js to load)
+      /**
+       * wait for our swfobject to appear (swfobject.js to load)
+       *
+       * @type {Evercookie.waitForSwf}
+       */
       var waitForSwf = this.waitForSwf = function (i) {
         if (i === undefined) {
           i = 0;
@@ -1149,6 +1220,12 @@ try {
         }
       };
 
+      /**
+       * document.cookie
+       *
+       * @param name
+       * @param value
+       */
       this.evercookie_cookie = function (name, value) {
         if (value !== undefined) {
           // expire the cookie first
@@ -1159,7 +1236,13 @@ try {
         }
       };
 
-      // get value from param-like string (eg, "x=y&name=VALUE")
+      /**
+       * get value from param-like string (eg, "x=y&name=VALUE")
+       *
+       * @param name
+       * @param text
+       * @returns {string|*}
+       */
       this.getFromStr = function (name, text) {
         if (typeof text !== "string") {
           return;
@@ -1306,6 +1389,7 @@ try {
     }
 
     window._evercookie_flash_var = _evercookie_flash_var;
+
     /**
      * Because Evercookie is a class, it should has first letter in capital
      * Keep first letter in small for legacy purpose
