@@ -1089,7 +1089,8 @@ try {
           initParam = '<param name="initParams" value="' + name + '=' + value + '" />';
         }
 
-        html = '<object style="position:absolute;left:-500px;top:-500px" data="data:application/x-silverlight-2," ' +
+        html = document.createElement('div');
+        html.innerHTML = '<object style="position:absolute;left:-500px;top:-500px" data="data:application/x-silverlight-2," ' +
           'type="application/x-silverlight-2" id="mysilverlight" width="0" height="0">' + initParam +
           '<param name="source" value="' + source + '"/>' +
           '<param name="onLoad" value="onSilverlightLoad"/>' +
