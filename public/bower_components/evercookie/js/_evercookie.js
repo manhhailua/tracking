@@ -66,53 +66,44 @@
 
  */
 try {
-  (function (window) {
+  (function (window, debug) {
     'use strict';
 
-    /**
-     * Global variables
-     * @type {HTMLDocument}
-     */
-    var document = window.document,
-      Image = window.Image,
-      globalStorage = window.globalStorage,
-      swfobject = window.swfobject;
+    // Development variables
+    var isLogging = debug || false;
 
-    /**
-     * Init localStorage variable
-     */
+    // Global variables
+    var document = window.document;
+    var swfObject = window.swfobject;
+
+    // Init globalStorage variable
     try {
-      var localStore = window.localStorage
-    } catch (ex) {
+      var globalStorage = window.globalStorage;
+    } catch (e) {
+      if (isLogging) {
+        console.debug(e);
+      }
     }
 
-    /**
-     * Init sessionStorage variable
-     */
+    // Init localStorage variable
+    try {
+      var localStore = window.localStorage
+    } catch (e) {
+      if (isLogging) {
+        console.debug(e);
+      }
+    }
+
+    // Init sessionStorage variable
     try {
       var sessionStorage = window.sessionStorage;
     } catch (e) {
+      if (isLogging) {
+        console.debug(e);
+      }
     }
 
-    /**
-     * Create a new image
-     * @param src Url of the image
-     */
-    function newImage(src) {
-      var img = new Image();
-      img.style.visibility = "hidden";
-      img.style.position = "absolute";
-      img.src = src;
-    }
-
-    /**
-     * Replace value of a key in query string and move that key to the end of query string
-     * @param str Query string
-     * @param key Key name
-     * @param value New value
-     * @returns {*} New query string with replaced value key at the end
-     * @private
-     */
+    // Replace value of a key in query string and move that key to the end of query string
     function _ec_replace(str, key, value) {
       if (str.indexOf("&" + key + "=") > -1 || str.indexOf(key + "=") === 0) {
         // find start
@@ -134,11 +125,8 @@ try {
       }
     }
 
-    /**
-     * Check if 'indexedDB' is existed
-     * @returns {boolean}
-     */
-    function idb() {
+    // Check if 'indexedDB' is existed
+    function isIndexedDBExisted() {
       if ('indexedDB' in window) {
         return true
       } else if (window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB) {
@@ -148,16 +136,14 @@ try {
       }
     }
 
-    /**
-     * necessary for flash to communicate with js...
-     * please implement a better way
-     */
+    // Necessary for flash to communicate with js...
+    // please implement a better way
     var _global_lso;
 
     function _evercookie_flash_var(cookie) {
       _global_lso = cookie;
 
-      // remove the flash object now
+      // Remove the flash object now
       var swf = document.getElementById("myswf");
       if (swf && swf.parentNode) {
         swf.parentNode.removeChild(swf);
@@ -390,7 +376,7 @@ try {
           i = 0;
         }
 
-        // first run
+        // First run
         if (i === 0) {
           self.evercookie_database_storage(name, value);
           self.evercookie_indexdb_storage(name, value);
@@ -422,7 +408,7 @@ try {
           }
         }
 
-        // when writing data, we need to make sure lso and silverlight object is there
+        // When writing data, we need to make sure lso and silverlight object is there
         if (value !== undefined) {
           if ((typeof _global_lso === "undefined" ||
             typeof _global_isolated === "undefined" ||
@@ -435,13 +421,13 @@ try {
           }
         }
 
-        // when reading data, we need to wait for swf, db, silverlight, java and png
+        // When reading data, we need to wait for swf, db, silverlight, java and png
         else {
           if (
             (
-              // we support local db and haven't read data in yet
+              // We support local db and haven't read data in yet
               (window.openDatabase && typeof self._ec.dbData === "undefined") ||
-              (idb() && (typeof self._ec.idbData === "undefined" || self._ec.idbData === "")) ||
+              (isIndexedDBExisted() && (typeof self._ec.idbData === "undefined" || self._ec.idbData === "")) ||
               (typeof _global_lso === "undefined") ||
               (typeof self._ec.etagData === "undefined") ||
               (typeof self._ec.cacheData === "undefined") ||
@@ -650,6 +636,9 @@ try {
             transport = transport();
             break;
           } catch (e) {
+            if (isLogging) {
+              console.debug(e);
+            }
           }
         }
 
@@ -683,6 +672,9 @@ try {
             return self.getFromStr(name, window.name);
           }
         } catch (e) {
+          if (isLogging) {
+            console.debug(e);
+          }
         }
       };
 
@@ -702,6 +694,9 @@ try {
             }
           }
         } catch (e) {
+          if (isLogging) {
+            console.debug(e);
+          }
         }
       };
 
@@ -848,7 +843,7 @@ try {
         params.swliveconnect = "true";
         attributes.id = "myswf";
         attributes.name = "myswf";
-        swfobject.embedSWF(_ec_baseurl + _ec_asseturi + "/evercookie.swf", "swfcontainer", "1", "1", "9.0.0", false, flashVars, params, attributes);
+        swfObject.embedSWF(_ec_baseurl + _ec_asseturi + "/evercookie.swf", "swfcontainer", "1", "1", "9.0.0", false, flashVars, params, attributes);
       };
 
       // TODO: store value to image cache
@@ -862,7 +857,7 @@ try {
         if (canvas && canvas.getContext) {
           // {{opts.pngPath}} handles the hard part of generating the image
           // based off of the http cookie and returning it cached
-          img = new Image();
+          img = document.createElement('img');
           img.style.visibility = "hidden";
           img.style.position = "absolute";
           if (value !== undefined) {
@@ -921,6 +916,9 @@ try {
             }
           }
         } catch (e) {
+          if (isLogging) {
+            console.debug(e);
+          }
         }
       };
 
@@ -961,6 +959,9 @@ try {
             }
           }
         } catch (e) {
+          if (isLogging) {
+            console.debug(e);
+          }
         }
       };
 
@@ -1030,6 +1031,9 @@ try {
             }
           }
         } catch (e) {
+          if (isLogging) {
+            console.debug(e);
+          }
         }
       };
 
@@ -1044,6 +1048,9 @@ try {
             }
           }
         } catch (e) {
+          if (isLogging) {
+            console.debug(e);
+          }
         }
       };
 
@@ -1058,6 +1065,9 @@ try {
               return globalStorage[host][name];
             }
           } catch (e) {
+            if (isLogging) {
+              console.debug(e);
+            }
           }
         }
       };
@@ -1099,7 +1109,10 @@ try {
           } else {
             $('body').append(html);
           }
-        } catch (ex) {
+        } catch (e) {
+          if (isLogging) {
+            console.debug(e);
+          }
         }
       };
 
@@ -1196,7 +1209,7 @@ try {
         }
 
         // wait for ~2 seconds for swfobject to appear
-        if (i < _ec_tests && typeof swfobject === "undefined") {
+        if (i < _ec_tests && typeof swfObject === "undefined") {
           setTimeout(function () {
             waitForSwf(i);
           }, 300);
@@ -1322,6 +1335,9 @@ try {
         }
       } catch (e) {
         created_style = 0;
+        if (isLogging) {
+          console.debug(e);
+        }
       }
 
       // If test_color, return -1 if we can't set a style
@@ -1380,6 +1396,7 @@ try {
      * @expose Evercookie
      */
     window.evercookie = window.Evercookie = Evercookie;
-  }(window));
-} catch (ex) {
+  }(window, true)); // Window , debug
+} catch (e) {
+  console.debug(e);
 }
