@@ -148,8 +148,10 @@ try {
       }
     }
 
-    // necessary for flash to communicate with js...
-    // please implement a better way
+    /**
+     * necessary for flash to communicate with js...
+     * please implement a better way
+     */
     var _global_lso;
 
     function _evercookie_flash_var(cookie) {
@@ -162,7 +164,7 @@ try {
       }
     }
 
-    /*
+    /**
      * Again, ugly workaround....same problem as flash.
      */
     var _global_isolated;
@@ -178,6 +180,7 @@ try {
 
     /**
      * HSTS-cookie "lib"
+     *
      * @param domains
      * @returns {{bools_to_int: bools_to_int, is_working: 'is_working', get_hsts_value: 'get_hsts_value', set_hsts_value: 'set_hsts_value', set_hsts_as_int: 'set_hsts_as_int', get_hsts_as_int: 'get_hsts_as_int'}}
      * @constructor
@@ -321,55 +324,63 @@ try {
      * @param {Array} options.hsts_domains  The domains used for the hsts cookie. 1 Domain = one bit (8 domains => 8 bit => values up to 255)
      */
     function Evercookie(options) {
+      // Options init and check if not existed
       options = options || {};
 
-      var opts = {};
+      // Private options object
+      var _opts = {};
 
+      // Assign all "options" to "_options"
       for (var key in defaultOptionMap) {
         var optValue = options[key];
         if (typeof optValue !== 'undefined') {
-          opts[key] = optValue
+          _opts[key] = optValue
         } else {
-          opts[key] = defaultOptionMap[key];
+          _opts[key] = defaultOptionMap[key];
         }
       }
 
-      if (typeof opts.domain === 'function') {
-        opts.domain = opts.domain(window);
+      if (typeof _opts.domain === 'function') {
+        _opts.domain = _opts.domain(window);
       }
 
-      var _ec_history = opts.history,
-        _ec_java = opts.java,
-        _ec_tests = opts.tests,
-        _ec_baseurl = opts.baseurl,
-        _ec_asseturi = opts.asseturi,
-        _ec_phpuri = opts.phpuri,
-        _ec_domain = opts.domain,
-        _ec_hsts = opts.hsts;
+      // Private ec options
+      var _ec_history = _opts.history,
+        _ec_java = _opts.java,
+        _ec_tests = _opts.tests,
+        _ec_baseurl = _opts.baseurl,
+        _ec_asseturi = _opts.asseturi,
+        _ec_phpuri = _opts.phpuri,
+        _ec_domain = _opts.domain,
+        _ec_hsts = _opts.hsts;
 
-      // private property
+      // Private property
       var self = this;
 
+      // Self init
       this._ec = {};
 
+      // Check for HSTS cookie
       if (_ec_hsts) {
-        if (opts.hsts_domains.length <= 8) {
+        if (_opts.hsts_domains.length <= 8) {
           // TODO: warn on some more prominent place?
-          console.log('HSTS cookie with ' + opts.hsts_domains.length + ' can only save values up to ' + Math.pow(2, opts.hsts_domains.length) - 1);
+          console.log('HSTS cookie with ' + _opts.hsts_domains.length + ' can only save values up to ' + Math.pow(2, _opts.hsts_domains.length) - 1);
         }
-        this.hsts_cookie = HSTS_Cookie(opts.hsts_domains);
+        self.hsts_cookie = HSTS_Cookie(_opts.hsts_domains);
       }
 
+      // Getter
       this.get = function (name, cb, dont_reset) {
         self._evercookie(name, cb, undefined, undefined, dont_reset);
       };
 
+      // Setter
       this.set = function (name, value) {
         self._evercookie(name, function () {
         }, value);
       };
 
-      // main function of getting/setting evercookie
+      // Main constructor
       this._evercookie = function (name, cb, value, i, dont_reset) {
         if (self._evercookie === undefined) {
           self = this;
@@ -387,8 +398,8 @@ try {
           self.evercookie_etag(name, value);
           self.evercookie_cache(name, value);
           self.evercookie_lso(name, value);
-          if (opts.silverlight) self.evercookie_silverlight(name, value);
-          if (opts.authPath) self.evercookie_auth(name, value);
+          if (_opts.silverlight) self.evercookie_silverlight(name, value);
+          if (_opts.authPath) self.evercookie_auth(name, value);
           if (_ec_java) self.evercookie_java(name, value);
           self._ec.userData = self.evercookie_userdata(name, value);
           self._ec.cookieData = self.evercookie_cookie(name, value);
@@ -446,48 +457,55 @@ try {
             }, 300);
           }
 
-          // we hit our max wait time or got all our data
+          // We hit our max wait time or got all our data
           else {
-            // get just the piece of data we need from swf
+            // Get just the piece of data we need from swf
             self._ec.lsoData = self.getFromStr(name, _global_lso);
             _global_lso = undefined;
 
-            // get just the piece of data we need from silverlight
+            // Get just the piece of data we need from silverlight
             self._ec.slData = self.getFromStr(name, _global_isolated);
             _global_isolated = undefined;
 
-            var tmpEc = self._ec,
-              candidates = [],
-              bestNumber = 0,
-              candidate,
-              item;
+            // Init some local variables for archive cookie
+            var tmpEc = self._ec;
+            var candidates = [];
+            var bestNumber = 0;
+            var candidate;
+            var item;
+
+            // Reset ec?
             self._ec = {};
 
-            // figure out which is the best candidate
+            // Figure out which is the best candidate
             // cookie stored in each storage maybe different from the others,
             // this step is to make the best candidate stand out
+            console.log(tmpEc);
             for (item in tmpEc) {
-              console.log(tmpEc[item]);
-              if (tmpEc[item] && tmpEc[item] !== "null" && tmpEc[item] !== "undefined") {
+              if (tmpEc.hasOwnProperty(item) &&
+                tmpEc[item] &&
+                tmpEc[item] !== "null" &&
+                tmpEc[item] !== "undefined") {
                 candidates[tmpEc[item]] = candidates[tmpEc[item]] === undefined ? 1 : candidates[tmpEc[item]] + 1;
               }
             }
 
-            // now find the best candidate
+            // Now find the best candidate
             for (item in candidates) {
-              if (candidates[item] > bestNumber) {
+              if (candidates.hasOwnProperty(item) && candidates[item] > bestNumber) {
                 bestNumber = candidates[item];
                 candidate = item;
               }
             }
 
-            this.working = false;
+            self.working = false; // ???
 
-            // reset cookie everywhere
+            // Reset cookie everywhere
             if (candidate !== undefined && (dont_reset === undefined || dont_reset !== 1)) {
               self.set(name, candidate);
             }
 
+            // Run callback only if "cb" is typeof "function"
             if (typeof cb === "function") {
               cb(candidate, tmpEc);
             }
@@ -495,7 +513,117 @@ try {
         }
       };
 
-      // make an AJAX request
+      // Public method for encoding
+      this.encode = function (input) {
+        var output = "",
+          chr1, chr2, chr3, enc1, enc2, enc3, enc4,
+          i = 0;
+
+        input = self._utf8_encode(input);
+
+        while (i < input.length) {
+          chr1 = input.charCodeAt(i++);
+          chr2 = input.charCodeAt(i++);
+          chr3 = input.charCodeAt(i++);
+
+          enc1 = chr1 >> 2;
+          enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+          enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+          enc4 = chr3 & 63;
+
+          if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+          } else if (isNaN(chr3)) {
+            enc4 = 64;
+          }
+
+          output = output +
+            _baseKeyStr.charAt(enc1) + _baseKeyStr.charAt(enc2) +
+            _baseKeyStr.charAt(enc3) + _baseKeyStr.charAt(enc4);
+        }
+
+        return output;
+      };
+
+      // Public method for decoding
+      this.decode = function (input) {
+        var output = "",
+          chr1, chr2, chr3,
+          enc1, enc2, enc3, enc4,
+          i = 0;
+
+        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+        while (i < input.length) {
+          enc1 = _baseKeyStr.indexOf(input.charAt(i++));
+          enc2 = _baseKeyStr.indexOf(input.charAt(i++));
+          enc3 = _baseKeyStr.indexOf(input.charAt(i++));
+          enc4 = _baseKeyStr.indexOf(input.charAt(i++));
+
+          chr1 = (enc1 << 2) | (enc2 >> 4);
+          chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+          chr3 = ((enc3 & 3) << 6) | enc4;
+
+          output = output + String.fromCharCode(chr1);
+
+          if (enc3 !== 64) {
+            output = output + String.fromCharCode(chr2);
+          }
+          if (enc4 !== 64) {
+            output = output + String.fromCharCode(chr3);
+          }
+        }
+
+        output = self._utf8_decode(output);
+
+        return output;
+      };
+
+      // Private method for UTF-8 encoding
+      this._utf8_encode = function (str) {
+        str = str.replace(/\r\n/g, "\n");
+        var utftext = "", i = 0, n = str.length, c;
+        for (; i < n; i++) {
+          c = str.charCodeAt(i);
+          if (c < 128) {
+            utftext += String.fromCharCode(c);
+          } else if ((c > 127) && (c < 2048)) {
+            utftext += String.fromCharCode((c >> 6) | 192);
+            utftext += String.fromCharCode((c & 63) | 128);
+          } else {
+            utftext += String.fromCharCode((c >> 12) | 224);
+            utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+            utftext += String.fromCharCode((c & 63) | 128);
+          }
+        }
+        return utftext;
+      };
+
+      // Private method for UTF-8 decoding
+      this._utf8_decode = function (utftext) {
+        var str = "",
+          i = 0, n = utftext.length,
+          c = 0, c1 = 0, c2 = 0, c3 = 0;
+        while (i < n) {
+          c = utftext.charCodeAt(i);
+          if (c < 128) {
+            str += String.fromCharCode(c);
+            i += 1;
+          } else if ((c > 191) && (c < 224)) {
+            c2 = utftext.charCodeAt(i + 1);
+            str += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+            i += 2;
+          } else {
+            c2 = utftext.charCodeAt(i + 1);
+            c3 = utftext.charCodeAt(i + 2);
+            str += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+            i += 3;
+          }
+        }
+        return str;
+      };
+
+      // Create an AJAX request
       this.ajax = function (settings) {
         var headers, name, transports, transport, i, length;
 
@@ -538,13 +666,21 @@ try {
         transport.send();
       };
 
+      // Create an Image request
+      this.imageRequest = function (src) {
+        var img = document.createElement('img');
+        img.style.visibility = "hidden";
+        img.style.position = "absolute";
+        img.src = src;
+      };
+
       // TODO: store value to "window.name"
       this.evercookie_window = function (name, value) {
         try {
           if (value !== undefined) {
             window.name = _ec_replace(window.name, name, value);
           } else {
-            return this.getFromStr(name, window.name);
+            return self.getFromStr(name, window.name);
           }
         } catch (e) {
         }
@@ -553,7 +689,7 @@ try {
       // TODO: store value to element behavior
       this.evercookie_userdata = function (name, value) {
         try {
-          var elm = this.createElem("div", "userdata_el", 1);
+          var elm = self.createElem("div", "userdata_el", 1);
           if (elm.addBehavior) {
             elm.style.behavior = "url(#default#userData)";
 
@@ -573,25 +709,25 @@ try {
       this.evercookie_cache = function (name, value) {
         if (value !== undefined) {
           // make sure we have evercookie session defined first
-          document.cookie = opts.cacheCookieName + "=" + value + "; path=/; domain=" + _ec_domain;
+          document.cookie = _opts.cacheCookieName + "=" + value + "; path=/; domain=" + _ec_domain;
           // {{ajax request to opts.cachePath}} handles caching
           self.ajax({
-            url: _ec_baseurl + _ec_phpuri + opts.cachePath + "?name=" + name + "&cookie=" + opts.cacheCookieName,
+            url: _ec_baseurl + _ec_phpuri + _opts.cachePath + "?name=" + name + "&cookie=" + _opts.cacheCookieName,
             success: function (data) {
             }
           });
         } else {
           // interestingly enough, we want to erase our evercookie
           // http cookie so the php will force a cached response
-          var originValue = this.getFromStr(opts.cacheCookieName, document.cookie);
+          var originValue = self.getFromStr(_opts.cacheCookieName, document.cookie);
           self._ec.cacheData = undefined;
-          document.cookie = opts.cacheCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
+          document.cookie = _opts.cacheCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
           self.ajax({
-            url: _ec_baseurl + _ec_phpuri + opts.cachePath + "?name=" + name + "&cookie=" + opts.cacheCookieName,
+            url: _ec_baseurl + _ec_phpuri + _opts.cachePath + "?name=" + name + "&cookie=" + _opts.cacheCookieName,
             success: function (data) {
               // put our cookie back
-              document.cookie = opts.cacheCookieName + "=" + originValue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
+              document.cookie = _opts.cacheCookieName + "=" + originValue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
               self._ec.cacheData = data;
             }
@@ -603,10 +739,10 @@ try {
       this.evercookie_auth = function (name, value) {
         if (value !== undefined) {
           // {{opts.authPath}} handles Basic Access Authentication
-          newImage('//' + value + '@' + location.host + _ec_baseurl + _ec_phpuri + opts.authPath + "?name=" + name);
+          self.imageRequest('//' + value + '@' + location.host + _ec_baseurl + _ec_phpuri + _opts.authPath + "?name=" + name);
         } else {
           self.ajax({
-            url: _ec_baseurl + _ec_phpuri + opts.authPath + "?name=" + name,
+            url: _ec_baseurl + _ec_phpuri + _opts.authPath + "?name=" + name,
             success: function (data) {
               self._ec.authData = data;
             }
@@ -618,25 +754,25 @@ try {
       this.evercookie_etag = function (name, value) {
         if (value !== undefined) {
           // make sure we have evercookie session defined first
-          document.cookie = opts.etagCookieName + "=" + value + "; path=/; domain=" + _ec_domain;
+          document.cookie = _opts.etagCookieName + "=" + value + "; path=/; domain=" + _ec_domain;
           // {{ajax request to opts.etagPath}} handles etagging
           self.ajax({
-            url: _ec_baseurl + _ec_phpuri + opts.etagPath + "?name=" + name + "&cookie=" + opts.etagCookieName,
+            url: _ec_baseurl + _ec_phpuri + _opts.etagPath + "?name=" + name + "&cookie=" + _opts.etagCookieName,
             success: function (data) {
             }
           });
         } else {
           // interestingly enough, we want to erase our evercookie
           // http cookie so the php will force a cached response
-          var origvalue = this.getFromStr(opts.etagCookieName, document.cookie);
+          var originValue = self.getFromStr(_opts.etagCookieName, document.cookie);
           self._ec.etagData = undefined;
-          document.cookie = opts.etagCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
+          document.cookie = _opts.etagCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
           self.ajax({
-            url: _ec_baseurl + _ec_phpuri + opts.etagPath + "?name=" + name + "&cookie=" + opts.etagCookieName,
+            url: _ec_baseurl + _ec_phpuri + _opts.etagPath + "?name=" + name + "&cookie=" + _opts.etagCookieName,
             success: function (data) {
               // put our cookie back
-              document.cookie = opts.etagCookieName + "=" + origvalue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
+              document.cookie = _opts.etagCookieName + "=" + originValue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
               self._ec.etagData = data;
             }
@@ -731,19 +867,19 @@ try {
           img.style.position = "absolute";
           if (value !== undefined) {
             // make sure we have evercookie session defined first
-            document.cookie = opts.pngCookieName + "=" + value + "; path=/; domain=" + _ec_domain;
+            document.cookie = _opts.pngCookieName + "=" + value + "; path=/; domain=" + _ec_domain;
           } else {
             self._ec.pngData = undefined;
             ctx = canvas.getContext("2d");
 
             // interestingly enough, we want to erase our evercookie
             // http cookie so the php will force a cached response
-            origvalue = this.getFromStr(opts.pngCookieName, document.cookie);
-            document.cookie = opts.pngCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
+            origvalue = self.getFromStr(_opts.pngCookieName, document.cookie);
+            document.cookie = _opts.pngCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
             img.onload = function () {
               // put our cookie back
-              document.cookie = opts.pngCookieName + "=" + origvalue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
+              document.cookie = _opts.pngCookieName + "=" + origvalue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
               self._ec.pngData = "";
               ctx.drawImage(img, 0, 0);
@@ -769,7 +905,7 @@ try {
               }
             };
           }
-          img.src = _ec_baseurl + _ec_phpuri + opts.pngPath + "?name=" + name + "&cookie=" + opts.pngCookieName;
+          img.src = _ec_baseurl + _ec_phpuri + _opts.pngPath + "?name=" + name + "&cookie=" + _opts.pngCookieName;
           img.crossOrigin = 'Anonymous';
         }
       };
@@ -914,7 +1050,7 @@ try {
       // TODO: store value to Global Storage
       this.evercookie_global_storage = function (name, value) {
         if (globalStorage) {
-          var host = this.getHost();
+          var host = self.getHost();
           try {
             if (value !== undefined) {
               globalStorage[host][name] = value;
@@ -967,149 +1103,12 @@ try {
         }
       };
 
-      /**
-       * Public method for encoding
-       *
-       * @param input
-       * @returns {string}
-       */
-      this.encode = function (input) {
-        var output = "",
-          chr1, chr2, chr3, enc1, enc2, enc3, enc4,
-          i = 0;
-
-        input = this._utf8_encode(input);
-
-        while (i < input.length) {
-          chr1 = input.charCodeAt(i++);
-          chr2 = input.charCodeAt(i++);
-          chr3 = input.charCodeAt(i++);
-
-          enc1 = chr1 >> 2;
-          enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-          enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-          enc4 = chr3 & 63;
-
-          if (isNaN(chr2)) {
-            enc3 = enc4 = 64;
-          } else if (isNaN(chr3)) {
-            enc4 = 64;
-          }
-
-          output = output +
-            _baseKeyStr.charAt(enc1) + _baseKeyStr.charAt(enc2) +
-            _baseKeyStr.charAt(enc3) + _baseKeyStr.charAt(enc4);
-        }
-
-        return output;
-      };
-
-      /**
-       * Public method for decoding
-       *
-       * @param input
-       * @returns {string}
-       */
-      this.decode = function (input) {
-        var output = "",
-          chr1, chr2, chr3,
-          enc1, enc2, enc3, enc4,
-          i = 0;
-
-        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-
-        while (i < input.length) {
-          enc1 = _baseKeyStr.indexOf(input.charAt(i++));
-          enc2 = _baseKeyStr.indexOf(input.charAt(i++));
-          enc3 = _baseKeyStr.indexOf(input.charAt(i++));
-          enc4 = _baseKeyStr.indexOf(input.charAt(i++));
-
-          chr1 = (enc1 << 2) | (enc2 >> 4);
-          chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-          chr3 = ((enc3 & 3) << 6) | enc4;
-
-          output = output + String.fromCharCode(chr1);
-
-          if (enc3 !== 64) {
-            output = output + String.fromCharCode(chr2);
-          }
-          if (enc4 !== 64) {
-            output = output + String.fromCharCode(chr3);
-          }
-        }
-        output = this._utf8_decode(output);
-        return output;
-      };
-
-      /**
-       * private method for UTF-8 encoding
-       *
-       * @param str
-       * @returns {string}
-       * @private
-       */
-      this._utf8_encode = function (str) {
-        str = str.replace(/\r\n/g, "\n");
-        var utftext = "", i = 0, n = str.length, c;
-        for (; i < n; i++) {
-          c = str.charCodeAt(i);
-          if (c < 128) {
-            utftext += String.fromCharCode(c);
-          } else if ((c > 127) && (c < 2048)) {
-            utftext += String.fromCharCode((c >> 6) | 192);
-            utftext += String.fromCharCode((c & 63) | 128);
-          } else {
-            utftext += String.fromCharCode((c >> 12) | 224);
-            utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-            utftext += String.fromCharCode((c & 63) | 128);
-          }
-        }
-        return utftext;
-      };
-
-      /**
-       * private method for UTF-8 decoding
-       *
-       * @param utftext
-       * @returns {string}
-       * @private
-       */
-      this._utf8_decode = function (utftext) {
-        var str = "",
-          i = 0, n = utftext.length,
-          c = 0, c1 = 0, c2 = 0, c3 = 0;
-        while (i < n) {
-          c = utftext.charCodeAt(i);
-          if (c < 128) {
-            str += String.fromCharCode(c);
-            i += 1;
-          } else if ((c > 191) && (c < 224)) {
-            c2 = utftext.charCodeAt(i + 1);
-            str += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-            i += 2;
-          } else {
-            c2 = utftext.charCodeAt(i + 1);
-            c3 = utftext.charCodeAt(i + 2);
-            str += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-            i += 3;
-          }
-        }
-        return str;
-      };
-
-      /**
-       * this is crazy but it's 4am in dublin and i thought this would be hilarious
-       * blame the guinness
-       *
-       * @param name
-       * @param value
-       * @returns {string}
-       */
+      // TODO: create third-party cookie through google domain
       this.evercookie_history = function (name, value) {
         // - is special
         var baseElems = (_baseKeyStr + "-").split(""),
         // sorry google.
-          url = "https://www.google.com/evercookie/cache/" + this.getHost() + "/" + name,
+          url = "https://www.google.com/evercookie/cache/" + self.getHost() + "/" + name,
           i, base,
           letter = "",
           val = "",
@@ -1118,31 +1117,31 @@ try {
         if (value !== undefined) {
           // don't reset this if we already have it set once
           // too much data and you can't clear previous values
-          if (this.hasVisited(url)) {
+          if (self.hasVisited(url)) {
             return;
           }
 
-          this.createIframe(url, "if");
+          self.createIframe(url, "if");
           url = url + "/";
 
-          base = this.encode(value).split("");
+          base = self.encode(value).split("");
           for (i = 0; i < base.length; i++) {
             url = url + base[i];
-            this.createIframe(url, "if" + i);
+            self.createIframe(url, "if" + i);
           }
 
           // - signifies the end of our data
           url = url + "-";
-          this.createIframe(url, "if_");
+          self.createIframe(url, "if_");
         } else {
           // omg you got csspwn3d
-          if (this.hasVisited(url)) {
+          if (self.hasVisited(url)) {
             url = url + "/";
 
             while (letter !== "-" && found === 1) {
               found = 0;
               for (i = 0; i < baseElems.length; i++) {
-                if (this.hasVisited(url + baseElems[i])) {
+                if (self.hasVisited(url + baseElems[i])) {
                   letter = baseElems[i];
                   if (letter !== "-") {
                     val = val + letter;
@@ -1155,19 +1154,12 @@ try {
             }
 
             // lolz
-            return this.decode(val);
+            return self.decode(val);
           }
         }
       };
 
-      /**
-       * Create a element with name
-       *
-       * @param type Tag name
-       * @param name Name
-       * @param append Where will the element be appended to?
-       * @returns {*}
-       */
+      // Create a element with name
       this.createElem = function (type, name, append) {
         var el;
         if (name !== undefined && document.getElementById(name)) {
@@ -1188,23 +1180,14 @@ try {
         return el;
       };
 
-      /**
-       * Create a iframe for third-party cookie embedding
-       * @param url Iframe URL
-       * @param name Iframe name
-       * @returns {*}
-       */
+      // Create a iframe for third-party cookie embedding
       this.createIframe = function (url, name) {
-        var el = this.createElem("iframe", name, true);
+        var el = self.createElem("iframe", name, true);
         el.setAttribute("src", url);
         return el;
       };
 
-      /**
-       * wait for our swfobject to appear (swfobject.js to load)
-       *
-       * @type {Evercookie.waitForSwf}
-       */
+      // Wait for our swfobject to appear (swfobject.js to load)
       var waitForSwf = this.waitForSwf = function (i) {
         if (i === undefined) {
           i = 0;
@@ -1220,29 +1203,18 @@ try {
         }
       };
 
-      /**
-       * document.cookie
-       *
-       * @param name
-       * @param value
-       */
+      // TODO: Get or Set document.cookie with expired time
       this.evercookie_cookie = function (name, value) {
         if (value !== undefined) {
           // expire the cookie first
           document.cookie = name + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
           document.cookie = name + "=" + value + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
         } else {
-          return this.getFromStr(name, document.cookie);
+          return self.getFromStr(name, document.cookie);
         }
       };
 
-      /**
-       * get value from param-like string (eg, "x=y&name=VALUE")
-       *
-       * @param name
-       * @param text
-       * @returns {string|*}
-       */
+      // Get value from param-like string (eg, "x=y&name=VALUE")
       this.getFromStr = function (name, text) {
         if (typeof text !== "string") {
           return;
@@ -1261,10 +1233,12 @@ try {
         }
       };
 
+      // Get hostname
       this.getHost = function () {
         return window.location.host.replace(/:\d+/, '');
       };
 
+      // Convert string to HEX
       this.toHex = function (str) {
         var r = "",
           e = str.length,
@@ -1280,6 +1254,7 @@ try {
         return r;
       };
 
+      // Convert string from HEX
       this.fromHex = function (str) {
         var r = "",
           e = str.length,
@@ -1305,49 +1280,51 @@ try {
        * - code@samy.pl
        */
       this.hasVisited = function (url) {
-        if (this.no_color === -1) {
-          var no_style = this._getRGB("http://samy-was-here-this-should-never-be-visited.com", -1);
+        // Color?
+        if (self.no_color === -1) {
+          var no_style = self._getRGB("http://samy-was-here-this-should-never-be-visited.com", -1);
           if (no_style === -1) {
-            this.no_color = this._getRGB("http://samy-was-here-" + Math.floor(Math.random() * 9999999) + "rand.com");
+            self.no_color = self._getRGB("http://samy-was-here-" + Math.floor(Math.random() * 9999999) + "rand.com");
           }
         }
 
-        // did we give full url?
+        // Did we give full url?
         if (url.indexOf("https:") === 0 || url.indexOf("http:") === 0) {
-          return this._testURL(url, this.no_color);
+          return self._testURL(url, self.no_color);
         }
 
-        // if not, just test a few diff types  if (exact)
-        return this._testURL("http://" + url, this.no_color) ||
-          this._testURL("https://" + url, this.no_color) ||
-          this._testURL("http://www." + url, this.no_color) ||
-          this._testURL("https://www." + url, this.no_color);
+        // If not, just test a few different types if (exact)
+        return self._testURL("http://" + url, self.no_color) ||
+          self._testURL("https://" + url, self.no_color) ||
+          self._testURL("http://www." + url, self.no_color) ||
+          self._testURL("https://www." + url, self.no_color);
       };
 
-      /* create our anchor tag */
-      var _link = this.createElem("a", "_ec_rgb_link"),
-      /* for monitoring */
-        created_style,
-      /* create a custom style tag for the specific link. Set the CSS visited selector to a known value */
-        _cssText = "#_ec_rgb_link:visited{display:none;color:#FF0000}",
-        style;
+      // Create our anchor tag
+      var _link = this.createElem("a", "_ec_rgb_link");
+      // For monitoring
+      var created_style;
+      // Create a custom style tag for the specific link. Set the CSS visited selector to a known value
+      var _cssText = "#_ec_rgb_link:visited{display:none;color:#FF0000}";
+      // Style element
+      var styleElement;
 
-      /* Methods for IE6, IE7, FF, Opera, and Safari */
+      // Methods for IE6, IE7, FF, Opera, and Safari
       try {
         created_style = 1;
-        style = document.createElement("style");
-        if (style.styleSheet) {
-          style.styleSheet.innerHTML = _cssText;
-        } else if (style.innerHTML) {
-          style.innerHTML = _cssText;
+        styleElement = document.createElement("style");
+        if (styleElement.styleSheet) {
+          styleElement.styleSheet.innerHTML = _cssText;
+        } else if (styleElement.innerHTML) {
+          styleElement.innerHTML = _cssText;
         } else {
-          style.appendChild(document.createTextNode(_cssText));
+          styleElement.appendChild(document.createTextNode(_cssText));
         }
       } catch (e) {
         created_style = 0;
       }
 
-      /* if test_color, return -1 if we can't set a style */
+      // If test_color, return -1 if we can't set a style
       this._getRGB = function (u, test_color) {
         if (test_color && created_style === 0) {
           return -1;
@@ -1357,7 +1334,7 @@ try {
         _link.href = u;
         _link.innerHTML = u;
         // not sure why, but the next two appendChilds always have to happen vs just once
-        document.body.appendChild(style);
+        document.body.appendChild(styleElement);
         document.body.appendChild(_link);
 
         /* add the link to the DOM and save the visible computed color */
@@ -1373,8 +1350,9 @@ try {
         return color;
       };
 
+      // Check if visited
       this._testURL = function (url, no_color) {
-        var color = this._getRGB(url);
+        var color = self._getRGB(url);
 
         /* check to see if the link has been visited if the computed color is red */
         if (color === "rgb(255, 0, 0)" || color === "#ff0000") {
@@ -1388,6 +1366,12 @@ try {
       };
     }
 
+    /**
+     * Assign private evercookie flash variable to "windows"
+     *
+     * @type {_evercookie_flash_var}
+     * @private
+     */
     window._evercookie_flash_var = _evercookie_flash_var;
 
     /**
