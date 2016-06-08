@@ -1126,7 +1126,7 @@ try {
         var baseElements = (_baseKeyStr + "-").split("");
 
         // sorry google.
-        var url = "https://www.google.com/evercookie/cache/" + self.getHost() + "/" + name;
+        var url = "http://manhhailua.xyz/evercookie/cache/" + self.getHost() + "/" + name;
         var i;
         var base;
         var letter = "";
@@ -1146,7 +1146,6 @@ try {
           base = self.encode(value).split("");
           for (i = 0; i < base.length; i++) {
             url = url + base[i];
-            console.log(url);
             self.createIframe(url, "if" + i);
           }
 
