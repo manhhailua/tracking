@@ -491,7 +491,7 @@ try {
               self.set(name, candidate);
             }
 
-            // Run callback only if "cb" is typeof "function"
+            // Run callback only if "cb" is a function
             if (typeof cb === "function") {
               cb(candidate, tmpEc);
             }
@@ -848,12 +848,16 @@ try {
 
       // TODO: store value to image cache
       this.evercookie_png = function (name, value) {
-        var canvas = document.createElement("canvas"),
-          img, ctx, origvalue;
+        var canvas = document.createElement("canvas");
+        var img;
+        var ctx;
+        var originValue;
+
         canvas.style.visibility = "hidden";
         canvas.style.position = "absolute";
         canvas.width = 200;
         canvas.height = 1;
+
         if (canvas && canvas.getContext) {
           // {{opts.pngPath}} handles the hard part of generating the image
           // based off of the http cookie and returning it cached
@@ -869,19 +873,18 @@ try {
 
             // interestingly enough, we want to erase our evercookie
             // http cookie so the php will force a cached response
-            origvalue = self.getFromStr(_opts.pngCookieName, document.cookie);
+            originValue = self.getFromStr(_opts.pngCookieName, document.cookie);
             document.cookie = _opts.pngCookieName + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
             img.onload = function () {
               // put our cookie back
-              document.cookie = _opts.pngCookieName + "=" + origvalue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
+              document.cookie = _opts.pngCookieName + "=" + originValue + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
 
               self._ec.pngData = "";
               ctx.drawImage(img, 0, 0);
 
               // get CanvasPixelArray from  given coordinates and dimensions
-              var imgd = ctx.getImageData(0, 0, 200, 1),
-                pix = imgd.data, i, n;
+              var imgd = ctx.getImageData(0, 0, 200, 1), pix = imgd.data, i, n;
 
               // loop over each pixel to get the "RGB" values (ignore alpha)
               for (i = 0, n = pix.length; i < n; i += 4) {
@@ -1120,13 +1123,15 @@ try {
       // TODO: create third-party cookie through google domain
       this.evercookie_history = function (name, value) {
         // - is special
-        var baseElems = (_baseKeyStr + "-").split(""),
+        var baseElements = (_baseKeyStr + "-").split("");
+
         // sorry google.
-          url = "https://www.google.com/evercookie/cache/" + self.getHost() + "/" + name,
-          i, base,
-          letter = "",
-          val = "",
-          found = 1;
+        var url = "https://www.google.com/evercookie/cache/" + self.getHost() + "/" + name;
+        var i;
+        var base;
+        var letter = "";
+        var val = "";
+        var found = 1;
 
         if (value !== undefined) {
           // don't reset this if we already have it set once
@@ -1141,6 +1146,7 @@ try {
           base = self.encode(value).split("");
           for (i = 0; i < base.length; i++) {
             url = url + base[i];
+            console.log(url);
             self.createIframe(url, "if" + i);
           }
 
@@ -1154,9 +1160,9 @@ try {
 
             while (letter !== "-" && found === 1) {
               found = 0;
-              for (i = 0; i < baseElems.length; i++) {
-                if (self.hasVisited(url + baseElems[i])) {
-                  letter = baseElems[i];
+              for (i = 0; i < baseElements.length; i++) {
+                if (self.hasVisited(url + baseElements[i])) {
+                  letter = baseElements[i];
                   if (letter !== "-") {
                     val = val + letter;
                   }
@@ -1196,9 +1202,9 @@ try {
 
       // Create a iframe for third-party cookie embedding
       this.createIframe = function (url, name) {
-        var el = self.createElem("iframe", name, true);
-        el.setAttribute("src", url);
-        return el;
+        var element = self.createElem("iframe", name, true);
+        element.setAttribute("src", url);
+        return element;
       };
 
       // Wait for our swfobject to appear (swfobject.js to load)
