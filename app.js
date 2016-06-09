@@ -26,8 +26,6 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
-app.use(evercookie.backend());
-// app.use(cookieParser());
 app.use(session({
   // store: new RedisStore({
   //   client: client,
@@ -41,6 +39,7 @@ app.use(session({
     maxAge: 1000 * 60 * 5
   }
 }));
+app.use(evercookie.backend());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes

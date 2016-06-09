@@ -239,9 +239,9 @@ try{
     tests: 10,  // 1000 what is it, actually?
     silverlight: true, // you might want to turn it off https://github.com/samyk/evercookie/issues/45
     domain: '.' + window.location.host.replace(/:\d+/, ''), // Get current domain
-    baseurl: '', // base url for php, flash and silverlight assets
-    asseturi: '/assets', // assets = .fla, .jar, etc
-    phpuri: '/php', // php file path or route
+    baseUrl: '', // base url for php, flash and silverlight assets
+    assetUri: '/assets', // assets = .fla, .jar, etc
+    phpUri: '/php', // php file path or route
     authPath: false, //'/evercookie_auth.php', // set to false to disable Basic Authentication cache
     pngCookieName: 'evercookie_png',
     pngPath: '/evercookie_png.php',
@@ -292,9 +292,9 @@ try{
     var _ec_history = opts.history,
       _ec_java =  opts.java,
       _ec_tests = opts.tests,
-      _ec_baseurl = opts.baseurl,
-      _ec_asseturi = opts.asseturi,
-      _ec_phpuri = opts.phpuri,
+      _ec_baseurl = opts.baseUrl,
+      _ec_asseturi = opts.assetUri,
+      _ec_phpuri = opts.phpUri,
       _ec_domain = opts.domain,
 	  _ec_hsts = opts.hsts;
 

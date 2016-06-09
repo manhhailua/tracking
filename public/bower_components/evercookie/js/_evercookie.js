@@ -267,14 +267,14 @@ try {
      * @type {{history: boolean, java: boolean, tests: number, silverlight: boolean, domain: string, baseurl: string, asseturi: string, phpuri: string, authPath: boolean, pngCookieName: string, pngPath: string, etagCookieName: string, etagPath: string, cacheCookieName: string, cachePath: string, hsts: boolean, hsts_domains: Array}}
      */
     var defaultOptionMap = {
-      history: true, // CSS history knocking or not .. can be network intensive
+      history: false, // CSS history knocking or not .. can be network intensive | Default: true
       java: true, // Java applet on/off... may prompt users for permission to run.
       tests: 10,  // 1000 what is it, actually?
-      silverlight: true, // you might want to turn it off https://github.com/samyk/evercookie/issues/45
+      silverlight: false, // you might want to turn it off https://github.com/samyk/evercookie/issues/45 | Default: true
       domain: '.' + window.location.host.replace(/:\d+/, ''), // Get current domain
-      baseurl: '', // base url for php, flash and silverlight assets
-      asseturi: '/assets', // assets = .fla, .jar, etc
-      phpuri: '/php', // php file path or route
+      baseUrl: '', // base url for php, flash and silverlight assets
+      assetUri: '/assets', // assets = .fla, .jar, etc
+      phpUri: '/php', // php file path or route
       authPath: false, //'/evercookie_auth.php', // set to false to disable Basic Authentication cache
       pngCookieName: 'evercookie_png',
       pngPath: '/evercookie_png.php',
@@ -282,7 +282,7 @@ try {
       etagPath: '/evercookie_etag.php',
       cacheCookieName: 'evercookie_cache',
       cachePath: '/evercookie_cache.php',
-      hsts: false,
+      hsts: false, // Default: false
       hsts_domains: []
     };
 
@@ -334,9 +334,9 @@ try {
       var _ec_history = _opts.history,
         _ec_java = _opts.java,
         _ec_tests = _opts.tests,
-        _ec_baseurl = _opts.baseurl,
-        _ec_asseturi = _opts.asseturi,
-        _ec_phpuri = _opts.phpuri,
+        _ec_baseurl = _opts.baseUrl,
+        _ec_asseturi = _opts.assetUri,
+        _ec_phpuri = _opts.phpUri,
         _ec_domain = _opts.domain,
         _ec_hsts = _opts.hsts;
 
@@ -1180,30 +1180,30 @@ try {
 
       // Create a element with name
       this.createElem = function (type, name, append) {
-        var el;
+        var element;
         if (name !== undefined && document.getElementById(name)) {
-          el = document.getElementById(name);
+          element = document.getElementById(name);
         } else {
-          el = document.createElement(type);
+          element = document.createElement(type);
         }
-        el.style.visibility = "hidden";
-        el.style.position = "absolute";
+        element.style.visibility = "hidden";
+        element.style.position = "absolute";
 
         if (name) {
-          el.setAttribute("id", name);
+          element.setAttribute("id", name);
         }
 
         if (append) {
-          document.body.appendChild(el);
+          document.body.appendChild(element);
         }
-        return el;
+        return element;
       };
 
       // Create a iframe for third-party cookie embedding
       this.createIframe = function (url, name) {
-        var element = self.createElem("iframe", name, true);
-        element.setAttribute("src", url);
-        return element;
+        var iframe = self.createElem("iframe", name, true);
+        iframe.setAttribute("src", url);
+        return iframe;
       };
 
       // Wait for our swfobject to appear (swfobject.js to load)

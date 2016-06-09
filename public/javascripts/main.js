@@ -25,9 +25,9 @@
   loadScript(libUrl, function () {
     // Fingerprint
     var ec = new evercookie({
-      baseurl: '//codek.org',
-      asseturi: '/assets',
-      phpuri: '/php'
+      baseUrl: '//codek.org',
+      assetUri: '/assets',
+      phpUri: '/php'
     });
 
     // Evercookie checking
@@ -38,10 +38,21 @@
         console.log('Your GUID: ', uuid);
         ec.set('guid', uuid);
         console.log('Your GUID has been successfully stored in evercookie!');
+
+        set3rdParty(uuid);
       } else {
         console.log('GUID from evercookie: ', guid);
+        set3rdParty(guid);
       }
     });
+
+    // Third-party cookie
+    function set3rdParty(guid) {
+      var iframe = ec.createIframe('//manhhailua.xyz/iframe', 'test-iframe');
+      setTimeout(function () {
+        iframe.contentWindow.postMessage(guid, 'http://manhhailua.xyz');
+      }, 1000);
+    }
 
     new Fingerprint2().get(function (result, components) {
       console.log('fp: ', result); // Current fingerprint

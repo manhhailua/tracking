@@ -46,7 +46,7 @@ router.get('/fake', function (req, res, next) {
     }
   });
 
-  res.render('index', {title: 'Tracking Test - Faked data has been created!'})
+  res.render('index', {title: 'Tracking Test - Faked data has been created!'});
 });
 
 // Dynamic tracking.js
@@ -62,6 +62,11 @@ router.get('/tracking.js', function (req, res, next) {
   } catch (error) {
     throw error;
   }
+});
+
+// iframe
+router.get('/iframe', function (req, res, next) {
+  res.render('iframe', {title: 'Tracking Test - Third party cookie setting!'});
 });
 
 // Test jsonp callback
