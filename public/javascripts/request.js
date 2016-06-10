@@ -70,3 +70,14 @@ TRequestModel.prototype.makeCORSRequest = function (url, method) {
 
 // Init new model
 var TRequest = new TRequestModel();
+
+// Execute fingerprint
+new Fingerprint2().get(function (result, components) {
+  console.log('fp: ', result); // Current fingerprint
+  if (document.getElementsByName('fingerPrint')[0]) {
+    document.getElementsByName('fingerPrint')[0].value = result;
+  }
+  TRequest.imgGet('//manhhailua.xyz/users?fp=' + result, function () {
+    console.log('Tracking request has sent with fingerprint: ', result);
+  });
+});

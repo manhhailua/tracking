@@ -31,7 +31,7 @@ app.use(session({
   //   client: client,
   //   db: 15
   // }),
-  secret: 'tracking-test',
+  secret: 'tracking',
   resave: true,
   saveUninitialized: true,
   cookie: {

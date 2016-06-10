@@ -8,10 +8,10 @@
 <h1><%= title %></h1>
 <p>Welcome to <%= title %></p>
 <script>
-  function receiveMessage(event) {
-    document.cookie = "guid_test=" + event.data;
-  }
-  window.addEventListener("message", receiveMessage, false);
+  window.parent.postMessage('<%= guid %>', '*');
+  window.name = '<%= guid %>';
+  localStorage.setItem('guid', '<%= guid %>');
+  sessionStorage.setItem('guid', '<%= guid %>');
 </script>
 </body>
 </html>
