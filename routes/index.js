@@ -3,6 +3,7 @@ var router = express.Router();
 var faker = require('faker');
 var uuid = require('uuid');
 var fs = require('fs');
+var etag = require('etag');
 
 var User = require('../models/User');
 

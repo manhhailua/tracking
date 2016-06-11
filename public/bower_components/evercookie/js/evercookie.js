@@ -815,8 +815,7 @@ try {
             placeholder: "ecAppletContainer"
           }, {}, {onJavascriptReady: doSetOrGet});
           // When the applet is loaded we will continue in doSetOrGet()
-        }
-        else {
+        } else {
           // applet already running... call doGetOrSet() directly.
           doSetOrGet("ecApplet");
         }
@@ -825,8 +824,7 @@ try {
           var applet = document.getElementById(appletId);
           if (value !== undefined) {
             applet.set(name, value);
-          }
-          else {
+          } else {
             self._ec.javaData = applet.get(name);
           }
         }
