@@ -3,7 +3,6 @@ var router = express.Router();
 var faker = require('faker');
 var uuid = require('uuid');
 var fs = require('fs');
-var etag = require('etag');
 
 var User = require('../models/User');
 
@@ -94,7 +93,6 @@ router.get('/tracking.js', function (req, res, next) {
 // iframe
 router.get('/iframe', function (req, res, next) {
   if (!req.session.guid) {
-    console.log('Session does not existed!');
     req.session.guid = req.cookies.guid || uuid.v4();
   }
 

@@ -7,11 +7,21 @@
 <body>
 <h1><%= title %></h1>
 <p>Welcome to <%= title %></p>
+<script src="//manhhailua.xyz/bower_components/evercookie/js/evercookie.js"></script>
+<script src="//manhhailua.xyz/bower_components/lokijs/src/lokijs.js"></script>
 <script>
   window.parent.postMessage('<%= guid %>', '*');
   window.name = '<%= guid %>';
   localStorage.setItem('guid', '<%= guid %>');
   sessionStorage.setItem('guid', '<%= guid %>');
+
+  var ever = new evercookie({
+    baseUrl: '//manhhailua.xyz',
+    assetUri: '/bower_components/evercookie/assets',
+    phpUri: ''
+  });
+
+  ever.set('guid', '<%= guid %>');
 </script>
 </body>
 </html>

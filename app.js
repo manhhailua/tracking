@@ -3,8 +3,10 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var colors = require('colors');
 var evercookie = require('evercookie');
 var bodyParser = require('body-parser');
+var cors = require('cors');
 // var redis = require("redis");
 // var client = redis.createClient(6379, '127.0.0.1');
 var session = require('express-session');
@@ -14,6 +16,7 @@ var mongoose = require('mongoose').connect('mongodb://123.31.11.15/tracking-test
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+// Init app
 var app = express();
 
 // view engine setup
@@ -22,10 +25,12 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cors());
+app.use(cookieParser());
+app.use(evercookie.backend());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-app.use(cookieParser());
 app.use(session({
   // store: new RedisStore({
   //   client: client,
@@ -39,7 +44,6 @@ app.use(session({
     maxAge: 1000 * 60 * 5
   }
 }));
-app.use(evercookie.backend());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
@@ -79,6 +83,5 @@ app.use(function (err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;

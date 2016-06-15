@@ -74,7 +74,15 @@ try {
 
     // Global variables
     var document = window.document;
-    var swfObject = window.swfobject;
+
+    // Init flash object
+    try {
+      var swfObject = window.swfobject;
+    } catch (e) {
+      if (isLogging) {
+        console.debug(e);
+      }
+    }
 
     // Init globalStorage variable
     try {
@@ -142,6 +150,15 @@ try {
         return true
       } else {
         return false
+      }
+    }
+
+    // Detect if inside iframe
+    function isInIframe() {
+      try {
+        return window.self !== window.top;
+      } catch (e) {
+        return true;
       }
     }
 
@@ -357,9 +374,9 @@ try {
 
       // Check for HSTS cookie
       if (_ec_hsts) {
-        if (_opts.hsts_domains.length <= 8) {
+        if (_opts.hsts_domains.length <= 8 && isLogging) {
           // TODO: warn on some more prominent place?
-          console.log('HSTS cookie with ' + _opts.hsts_domains.length + ' can only save values up to ' + Math.pow(2, _opts.hsts_domains.length) - 1);
+          console.debug('HSTS cookie with ' + _opts.hsts_domains.length + ' can only save values up to ' + Math.pow(2, _opts.hsts_domains.length) - 1);
         }
         self.hsts_cookie = HSTS_Cookie(_opts.hsts_domains);
       }
@@ -850,7 +867,9 @@ try {
         params.swliveconnect = "true";
         attributes.id = "myswf";
         attributes.name = "myswf";
-        swfObject.embedSWF(_ec_baseurl + _ec_asseturi + "/evercookie.swf", "swfcontainer", "1", "1", "9.0.0", false, flashVars, params, attributes);
+        if (swfObject) {
+          swfObject.embedSWF(_ec_baseurl + _ec_asseturi + "/evercookie.swf", "swfcontainer", "1", "1", "9.0.0", false, flashVars, params, attributes);
+        }
       };
 
       // TODO: store value to image cache
@@ -1185,6 +1204,17 @@ try {
         }
       };
 
+      // TODO: Get or Set document.cookie with expired time
+      this.evercookie_cookie = function (name, value) {
+        if (value !== undefined) {
+          // expire the cookie first
+          document.cookie = name + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
+          document.cookie = name + "=" + value + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
+        } else {
+          return self.getFromStr(name, document.cookie);
+        }
+      };
+
       // Create a element with name
       this.createElem = function (type, name, append) {
         var element;
@@ -1226,17 +1256,6 @@ try {
           setTimeout(function () {
             waitForSwf(i);
           }, 300);
-        }
-      };
-
-      // TODO: Get or Set document.cookie with expired time
-      this.evercookie_cookie = function (name, value) {
-        if (value !== undefined) {
-          // expire the cookie first
-          document.cookie = name + "=; expires=Mon, 20 Sep 2010 00:00:00 UTC; path=/; domain=" + _ec_domain;
-          document.cookie = name + "=" + value + "; expires=Tue, 31 Dec 2030 00:00:00 UTC; path=/; domain=" + _ec_domain;
-        } else {
-          return self.getFromStr(name, document.cookie);
         }
       };
 
@@ -1417,9 +1436,9 @@ try {
 
     // Init
     var ever = new evercookie({
-      baseUrl: '//codek.org',
-      assetUri: '/assets',
-      phpUri: '/php'
+      baseUrl: '//manhhailua.xyz',
+      assetUri: '/bower_components/evercookie/assets',
+      phpUri: ''
     });
 
     window.addEventListener("message", function (event) {
@@ -1438,7 +1457,9 @@ try {
     }, false);
 
     // Create iframe for third-party cookie transmission
-    ever.createIframe('//manhhailua.xyz/iframe', 'tracking');
+    if (!isInIframe()) {
+      ever.createIframe('//manhhailua.xyz/iframe', 'tracking');
+    }
   }(window, true)); // Window , debug
 } catch (e) {
   console.debug(e);
